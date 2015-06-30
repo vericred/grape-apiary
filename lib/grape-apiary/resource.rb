@@ -10,7 +10,13 @@ module GrapeApiary
     end
 
     def title
-      @title ||= name.titleize
+      @title ||= begin
+        if singular?
+          name.singularize.titleize
+        else
+          name.pluralize.titleize
+        end
+      end
     end
 
     def namespaced
@@ -25,11 +31,28 @@ module GrapeApiary
       end
     end
 
+    def has_model?
+      model.present?
+    end
+
     def header
       # TODO: ???
       route = routes.first
 
-      "#{title} #{route.route_type} [#{route.route_path_without_format}]"
+      "#{title} [#{route.route_path_without_format}]"
+    end
+
+    def model_example
+      ret = {}
+      model.documentation.each_pair do |key, opts|
+        ret[key] = opts.fetch(:example, "")
+      end
+
+      root = singular? ?
+             model.instance_variable_get(:@root) :
+             model.instance_variable_get(:@collection_root)
+
+      JSON.unparse({ root  => ret })
     end
 
     def sample_request
@@ -58,6 +81,16 @@ module GrapeApiary
 
     def resource_binding
       binding
+    end
+
+    private
+
+    def model
+      routes.map { |route| route.route_entity }.compact.first
+    end
+
+    def singular?
+      routes.first.route_type.to_sym == :single
     end
   end
 end

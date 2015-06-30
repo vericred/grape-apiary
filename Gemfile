@@ -12,6 +12,7 @@ group :development, :test do
   gem 'rake', '~> 10.0'
   gem 'rubocop', '~> 0.18'
   gem 'pry', '~> 0.9'
+  gem 'grape-entity'
   gem 'guard', '~> 2.4'
   gem 'guard-rspec', '~> 4.2'
   gem 'guard-bundler', '~> 2.0'

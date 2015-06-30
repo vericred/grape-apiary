@@ -7,9 +7,11 @@ HOST: <%= host %>
 <% resources.each do |resource| %>
 # Group <%= resource.title %>
 <%= properties_table(resource) %>
+
   <% resource.namespaced.each do |grouped_resource| %>
     <% grouped_resource.paths.each do |resource_by_path| %>
 ## <%= resource_by_path.header %>
+
 Actions on the <%= resource.name %> resource
       <% if resource_by_path.routes.first.route_params.present? %>
 + Parameters
@@ -17,6 +19,13 @@ Actions on the <%= resource.name %> resource
     + <%= param.description %>
         <% end %>
       <% end %>
+<% if resource_by_path.has_model? %>
++ Model (application/json)
+    + Body
+
+        <%= resource.model_example %>
+<% end %>
+
       <% resource_by_path.routes.each do |route| %>
 ### <%= route.route_description %>
 <% if show_request_sample?(route) %>
@@ -27,11 +36,7 @@ Actions on the <%= resource.name %> resource
 <%= resource.sample_request %>
 <% end %>
 <%= route.response_description %>
-<%= formatted_response_headers %>
-
-    + Body
-
-<%= resource.sample_response(route) %>
+    [<%= resource_by_path.title %>][]
       <% end %>
     <% end %>
   <% end %>

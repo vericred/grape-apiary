@@ -1,3 +1,5 @@
+require_relative './user_entity'
+
 class SampleApi < Grape::API
   resource 'widgets' do
     desc 'widgets list'
@@ -28,6 +30,18 @@ class SampleApi < Grape::API
       optional :description, type: 'string', desc: 'the widgets name'
     end
     put  ':id' do
+    end
+  end
+
+  resource :users do
+    desc 'Display a user',
+         entity: UserEntity,
+         http_codes: [
+           [201, 'Created'],
+           [422, 'RecordInvalid']
+         ],
+         authorizations: { oauth2: [] }
+    get ':id' do
     end
   end
 
