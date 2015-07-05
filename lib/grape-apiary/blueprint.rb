@@ -19,23 +19,21 @@ module GrapeApiary
     end
 
     def routes
-      @routes ||= api_class.routes.map do |route|
-        GrapeApiary::Route.new(route)
-      end
+      resources.map(&:routes).flatten
     end
 
     def resources
       @resources ||= begin
-        grouped_routes = routes.group_by(&:route_name).reject do |name, routes|
-          resource_exclusion.include?(name.to_sym)
-        end
-
-        grouped_routes.map { |name, routes| Resource.new(name, routes) }
+        api_class.routes
+          .group_by { |route| GrapeApiary::Route.route_name(route) }
+          .reject { |name, routes| resource_exclusion.include?(name.to_sym) }
+          .map { |name, routes| Resource.new(name, routes) }
       end
     end
 
     def properties_table(resource)
-      ERB.new(properties_template, nil, '-').result(resource.resource_binding)
+      ERB.new(properties_template, nil, '-')
+        .result(resource.resource_binding)
     end
 
     def formatted_request_headers

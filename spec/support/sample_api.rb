@@ -2,15 +2,24 @@ require_relative './user_entity'
 
 class SampleApi < Grape::API
   resource 'widgets' do
-    desc 'widgets list'
+    desc 'widgets list',
+         http_codes: [
+          [200, 'Widgets']
+         ]
     get  '/' do
     end
 
-    desc 'individual widget'
+    desc 'individual widget',
+         http_codes: [
+          [200, 'Widget']
+         ]
     get ':id' do
     end
 
-    desc 'create a widget'
+    desc 'create a widget',
+         http_codes: [
+          [201, 'Widget']
+         ]
     params do
       requires :name,
                type: 'string',
@@ -24,7 +33,8 @@ class SampleApi < Grape::API
     post '/' do
     end
 
-    desc 'update a widget'
+    desc 'update a widget',
+         http_codes: [[204, nil]]
     params do
       optional :name, type: 'string', desc: 'the widgets name'
       optional :description, type: 'string', desc: 'the widgets name'
@@ -34,14 +44,38 @@ class SampleApi < Grape::API
   end
 
   resource :users do
-    desc 'Display a user',
+    desc "Display a user",
          entity: UserEntity,
          http_codes: [
-           [201, 'Created'],
-           [422, 'RecordInvalid']
+           [201, 'User'],
+           [401, 'Unauthenticated'],
+           [403, 'Unauthorized'],
+           [404, 'RecordNotFound']
          ],
-         authorizations: { oauth2: [] }
+         authorizations: { oauth2: [] },
+         docs: <<-DOC.gsub(/^ {15}/,'')
+               Users represent registered users for the application
+               They are required for authentication and authorization
+
+               This endpoint displays an individual User.
+               DOC
     get ':id' do
+    end
+
+    desc "Update a user",
+         http_codes: [
+           [204, 'NoContent'],
+           [401, 'Unauthenticated'],
+           [403, 'Unauthorized'],
+           [404, 'RecordNotFound'],
+           [422, 'RecordInvalid']
+         ]
+    params do
+      requires :user, type: Hash do
+        requires :all, using: UserEntity.documentation.except(:id)
+      end
+    end
+    put ':id' do
     end
   end
 

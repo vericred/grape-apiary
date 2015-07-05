@@ -52,16 +52,173 @@ describe GrapeApiary::Blueprint do
     it 'includes properties for the resources' do
       expect(subject).to include('Properties')
     end
+
+    it 'is the full correct resource definition' do
+      normalized = subject.gsub(/ +$/,'')
+      expected = <<-DEF.gsub(/^ {8}/,'')
+        FORMAT: 1A
+        HOST: http://grape-apiary.apiary.io
+
+        # some api v1
+        some blueprint description
+
+
+        # Group Widgets
+
+
+
+        ## Widgets [/widgets]
+
+        Actions on the Widgets resource
+
+
+
+
+        ### widgets list [GET]
+
+        + Response 200 (application/json)
+            [Widgets][]
+
+
+        ### create a widget [POST]
+
+        + Request (application/json)
+            + Headers
+
+                    Accept-Charset: utf-8
+                    Connection: keep-alive
+            + Body
+
+                      {
+                        "description": "the best widget ever made",
+                        "name": "super widget"
+                      }
+
+        + Response 201 (application/json)
+            [Widget][]
+
+
+
+        ## Widget [/widgets/:id]
+
+        Actions on the Widgets resource
+
+        + Parameters
+
+            + id (required, uuid, `26`) ... the `id` of the `widget`
+
+
+
+
+
+        ### individual widget [GET]
+
+        + Response 200 (application/json)
+            [Widget][]
+
+
+        ### update a widget [PUT]
+
+        + Request (application/json)
+            + Headers
+
+                    Accept-Charset: utf-8
+                    Connection: keep-alive
+            + Body
+
+                      {
+                        "description": "the best widget ever made",
+                        "name": "super widget"
+                      }
+
+        + Response 204
+
+
+
+
+
+        # Group User
+        Properties
+
+        | Name | Type | Description |
+        |:-----|:-----|:------------|
+        | id |  Integer | Primary key of the user |
+        | is_admin |  Boolean | Is this user an admin? |
+
+
+
+
+        ## User [/users/:id]
+
+        Actions on the Users resource
+
+        + Parameters
+
+            + id (required, uuid, `27`) ... the `id` of the `user`
+
+
+
+        + Model (application/json)
+            + Body
+
+                {"user":{"id":1,"is_admin":false}}
+
+
+
+        ### Display a user [GET]
+        Users represent registered users for the application
+        They are required for authentication and authorization
+
+        This endpoint displays an individual User.
+
+
+        + Response 201 (application/json)
+            [User][]
+
+        + Response 401
+
+        + Response 403
+
+        + Response 404
+
+
+        ### Update a user [PUT]
+
+        + Request (application/json)
+            + Headers
+
+                    Accept-Charset: utf-8
+                    Connection: keep-alive
+            + Body
+
+                      {
+                        "id": 28,
+                        "is_admin": false
+                      }
+
+        + Response 204
+
+        + Response 401
+
+        + Response 403
+
+        + Response 404
+
+        + Response 422
+
+
+
+
+
+      DEF
+      expect(normalized).to eql(expected)
+    end
   end
 
   it 'exposes configuration settings' do
     GrapeApiary::Config::SETTINGS.each do |setting|
       expect(subject.send(setting)).to eq(GrapeApiary.config.send(setting))
     end
-  end
-
-  it 'exposes the raw routes of the given api' do
-    expect(subject.routes).to eq(SampleApi.routes)
   end
 
   context '#resources' do

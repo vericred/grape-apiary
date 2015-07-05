@@ -51,7 +51,8 @@ module GrapeApiary
       def generate_id
         case example_id_type
         when :integer
-          SecureRandom.random_number(1000)
+          @integer ||= 0
+          @integer += 1
         when :uuid
           SecureRandom.uuid
         when :bson

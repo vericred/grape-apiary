@@ -5,7 +5,7 @@ describe GrapeApiary::Route do
 
   let(:routes) { GrapeApiary::Blueprint.new(SampleApi).routes }
 
-  subject { routes.first }
+  subject(:route) { routes.first }
 
   it 'adds a name helper to routes' do
     expect(subject.route_name).to eq('widgets')
@@ -17,5 +17,14 @@ describe GrapeApiary::Route do
 
   it 'adds a type helper' do
     expect(subject.route_type).to eq('collection')
+  end
+
+  context '#response_descriptions' do
+    subject { route.response_descriptions.first }
+
+    it 'defaults to 200 and the name of the resource' do
+      expect(subject.entity_name).to eql 'Widgets'
+      expect(subject.http_code).to eql 200
+    end
   end
 end

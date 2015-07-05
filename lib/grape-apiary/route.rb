@@ -1,5 +1,5 @@
 module GrapeApiary
-  class Route < SimpleDelegator
+  class Route
     # would like to rely on SimpleDelegator but Grape::Route uses
     # method_missing for these methods :'(
     delegate(
@@ -7,22 +7,48 @@ module GrapeApiary
       :route_namespace,
       :route_path,
       :route_method,
-      to: '__getobj__'
+      :route_docs,
+      :route_http_codes,
+      to: :route
     )
 
+    attr_reader :route, :resource
+
+    #
+    # Helper method to normalize a route name
+    # This is used to group routes into resources
+    #
+    def self.route_name(route)
+      route.route_namespace.split('/').last ||
+        route.route_path.match('\/(\w*?)[\.\/\(]').captures.first
+    end
+
+    def initialize(resource, route)
+      @resource, @route = resource, route
+    end
+
+    def resource_title
+      resource.title
+    end
+
+    def response_descriptions
+      (route_http_codes.presence || [[200, resource.title]])
+        .map { |code| ResponseDescription.new(self, *code)}
+    end
+
     def route_params
-      @route_params ||= __getobj__.route_params.sort.map do |param|
-        Parameter.new(self, *param)
-      end
+      @route_params ||=
+        route.route_params
+          .sort_by { |k,v| k.to_sym }
+          .map { |param| Parameter.new(self, *param) }
     end
 
     def route_name
-      route_namespace.split('/').last ||
-        route_path.match('\/(\w*?)[\.\/\(]').captures.first
+      self.class.route_name(self.route)
     end
 
     def route_description
-      "#{__getobj__.route_description} [#{route_method.upcase}]"
+      "#{route.route_description} [#{route_method.upcase}]"
     end
 
     def route_path_without_format
@@ -39,12 +65,6 @@ module GrapeApiary
 
     def request_description
       "+ Request #{'(application/json)' if request_body?}"
-    end
-
-    def response_description
-      code = route_method == 'POST' ? 201 : 200
-
-      "+ Response #{code} (application/json)"
     end
 
     def list?

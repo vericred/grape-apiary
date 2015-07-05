@@ -11,7 +11,7 @@ group :development, :test do
   gem 'bundler', '~> 1.5'
   gem 'rake', '~> 10.0'
   gem 'rubocop', '~> 0.18'
-  gem 'pry', '~> 0.9'
+  gem 'pry-byebug'
   gem 'grape-entity'
   gem 'guard', '~> 2.4'
   gem 'guard-rspec', '~> 4.2'

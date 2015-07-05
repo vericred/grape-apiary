@@ -3,10 +3,14 @@ module GrapeApiary
     attr_reader :key, :name, :routes, :sample_generator
 
     def initialize(key, routes)
-      @key              = key
-      @name             = key.humanize
-      @routes           = routes
+      @key = key
+      @name = key.humanize
+      @routes = normalize_routes(routes)
       @sample_generator = SampleGenerator.new(self)
+    end
+
+    def documentation
+      model.try(:documentation).presence || {}
     end
 
     def title
@@ -45,7 +49,7 @@ module GrapeApiary
     def model_example
       ret = {}
       model.documentation.each_pair do |key, opts|
-        ret[key] = opts.fetch(:example, "")
+        ret[key] = opts.fetch(:documentation, {}).fetch(:example, "")
       end
 
       root = singular? ?
@@ -87,6 +91,16 @@ module GrapeApiary
 
     def model
       routes.map { |route| route.route_entity }.compact.first
+    end
+
+    #
+    # Helper method to make sure our routes are GrapeApiary::Routes
+    #
+    def normalize_routes(routes)
+      routes.map do |route|
+        route = route.route if route.is_a?(GrapeApiary::Route)
+        GrapeApiary::Route.new(self, route)
+      end
     end
 
     def singular?

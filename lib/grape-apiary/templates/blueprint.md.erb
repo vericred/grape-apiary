@@ -6,7 +6,9 @@ HOST: <%= host %>
 
 <% resources.each do |resource| %>
 # Group <%= resource.title %>
+<% if resource.documentation.present? -%>
 <%= properties_table(resource) %>
+<% end -%>
 
   <% resource.namespaced.each do |grouped_resource| %>
     <% grouped_resource.paths.each do |resource_by_path| %>
@@ -28,6 +30,9 @@ Actions on the <%= resource.name %> resource
 
       <% resource_by_path.routes.each do |route| %>
 ### <%= route.route_description %>
+<% if route.route_docs.present? -%>
+<%= route.route_docs %>
+<% end -%>
 <% if show_request_sample?(route) %>
 <%= route.request_description %>
 <%= formatted_request_headers %>
@@ -35,8 +40,9 @@ Actions on the <%= resource.name %> resource
 
 <%= resource.sample_request %>
 <% end %>
-<%= route.response_description %>
-    [<%= resource_by_path.title %>][]
+<% route.response_descriptions.each do |description| -%>
+<%= description %>
+<% end -%>
       <% end %>
     <% end %>
   <% end %>

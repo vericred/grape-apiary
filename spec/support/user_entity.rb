@@ -6,7 +6,7 @@ class UserEntity < Grape::Entity
     documentation: {
       type: Integer,
       desc: 'Primary key of the user',
-      example: 1
+      documentation: { example: 1 }
     }
   )
 
@@ -15,7 +15,7 @@ class UserEntity < Grape::Entity
     documentation: {
       type: Virtus::Attribute::Boolean,
       desc: 'Is this user an admin?',
-      example: false
+      documentation: { example: false }
     }
   )
 end

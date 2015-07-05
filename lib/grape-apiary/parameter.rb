@@ -7,6 +7,7 @@ module GrapeApiary
     delegate :example, to: :documentation, allow_nil: true
 
     def initialize(route, name, options)
+      name = name.to_s
       @full_name = name
       @name      = name
       @name      = name.scan(/\[(.*)\]/).flatten.first if name.include?('[')
