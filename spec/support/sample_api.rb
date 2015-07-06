@@ -44,6 +44,19 @@ class SampleApi < Grape::API
   end
 
   resource :users do
+    desc 'Display a list of users',
+         http_codes: [
+          [200, 'Users'],
+          [401, 'Unauthenticated'],
+          [403, 'Unauthorized']
+         ]
+    params do
+      optional :page, desc: 'Page for pagination', type: Integer
+      optional :per_page, desc: 'Number of users per page', type: Integer
+    end
+    get '/' do
+    end
+
     desc "Display a user",
          entity: UserEntity,
          http_codes: [

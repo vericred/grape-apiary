@@ -1,17 +1,26 @@
 module GrapeApiary
   class Blueprint
-    attr_reader :api_class, :blueprint_template, :properties_template
+    attr_reader :api_class
+
+    include TemplateRenderer
 
     delegate(*GrapeApiary::Config::SETTINGS, to: 'GrapeApiary::Config')
 
     def initialize(api_class)
-      @api_class           = api_class
-      @blueprint_template  = template_for(:blueprint)
-      @properties_template = template_for(:properties)
+      @api_class = api_class
+    end
+
+    def groups
+      @groups ||= begin
+        api_class.routes
+          .group_by { |route| GrapeApiary::Group.fetch_name(route) }
+          .reject { |name, routes| resource_exclusion.include?(name.to_sym) }
+          .map { |name, routes| GrapeApiary::Group.new(name, routes) }
+      end
     end
 
     def generate
-      ERB.new(blueprint_template, nil, '-').result(binding)
+      render(:blueprint, binding)
     end
 
     def write
@@ -29,6 +38,10 @@ module GrapeApiary
           .reject { |name, routes| resource_exclusion.include?(name.to_sym) }
           .map { |name, routes| Resource.new(name, routes) }
       end
+    end
+
+    def render_group(group)
+      render(:group, group.group_binding)
     end
 
     def properties_table(resource)
@@ -49,13 +62,6 @@ module GrapeApiary
     end
 
     private
-
-    def template_for(name)
-      directory = File.dirname(File.expand_path(__FILE__))
-      path = File.join(directory, "./templates/#{name}.md.erb")
-
-      File.read(path)
-    end
 
     def formatted_headers(headers)
       return '' unless headers.present?

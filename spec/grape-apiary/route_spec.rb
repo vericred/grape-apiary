@@ -19,6 +19,38 @@ describe GrapeApiary::Route do
     expect(subject.route_type).to eq('collection')
   end
 
+  context '#route_name' do
+    let(:api) do
+      Class.new(Grape::API) do
+        resource :users do
+          get '/' do
+          end
+
+          post '/' do
+          end
+
+          get '/:id' do
+          end
+
+          put '/:id' do
+          end
+        end
+      end
+    end
+
+    xit 'groups the route by namespace' do
+      expect(described_class.route_name(api.routes.first)).to eql('users')
+      expect(described_class.route_name(api.routes.second)).to eql('users')
+      expect(described_class.route_name(api.routes.third)).to eql(
+        '/users/{id}'
+      )
+      expect(described_class.route_name(api.routes.fourth)).to eql(
+        '/users/{id}'
+      )
+    end
+  end
+
+
   context '#response_descriptions' do
     subject { route.response_descriptions.first }
 

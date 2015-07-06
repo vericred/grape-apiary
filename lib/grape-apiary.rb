@@ -3,11 +3,13 @@ require 'grape'
 module GrapeApiary
   autoload :Blueprint,            'grape-apiary/blueprint'
   autoload :Config,               'grape-apiary/config'
+  autoload :Group,                'grape-apiary/group'
   autoload :Parameter,            'grape-apiary/parameter'
   autoload :Resource,             'grape-apiary/resource'
   autoload :ResponseDescription,  'grape-apiary/response_description'
   autoload :Route,                'grape-apiary/route'
   autoload :SampleGenerator,      'grape-apiary/sample_generator'
+  autoload :TemplateRenderer,     'grape-apiary/template_renderer'
   autoload :Version,              'grape-apiary/version'
 
   def self.config

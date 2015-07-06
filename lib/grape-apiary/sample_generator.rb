@@ -6,7 +6,7 @@ module GrapeApiary
 
     def initialize(resource)
       @resource = resource
-      @root     = resource.key.singularize
+      @root     = resource.uri.singularize
     end
 
     def sample(id = false)

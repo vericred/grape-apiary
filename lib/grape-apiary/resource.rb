@@ -1,10 +1,10 @@
 module GrapeApiary
   class Resource
-    attr_reader :key, :name, :routes, :sample_generator
+    attr_reader :uri, :name, :routes, :sample_generator
 
-    def initialize(key, routes)
-      @key = key
-      @name = key.humanize
+    def initialize(uri, routes)
+      @uri = uri
+      @name = uri.humanize
       @routes = normalize_routes(routes)
       @sample_generator = SampleGenerator.new(self)
     end
@@ -40,10 +40,7 @@ module GrapeApiary
     end
 
     def header
-      # TODO: ???
-      route = routes.first
-
-      "#{title} [#{route.route_path_without_format}]"
+      "#{title} [#{route_example_string}]"
     end
 
     def model_example
@@ -101,6 +98,11 @@ module GrapeApiary
         route = route.route if route.is_a?(GrapeApiary::Route)
         GrapeApiary::Route.new(self, route)
       end
+    end
+
+    def route_example_string
+      route = routes.first
+      route.route_path_without_format
     end
 
     def singular?

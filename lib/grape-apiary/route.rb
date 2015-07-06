@@ -19,8 +19,13 @@ module GrapeApiary
     # This is used to group routes into resources
     #
     def self.route_name(route)
-      route.route_namespace.split('/').last ||
-        route.route_path.match('\/(\w*?)[\.\/\(]').captures.first
+      begin
+        route.route_namespace.split('/').last ||
+          route.route_path.match('\/(\w*)?([\.\/\(]|$)').captures.first
+      rescue => e
+        binding.pry
+        ""
+      end
     end
 
     def initialize(resource, route)
