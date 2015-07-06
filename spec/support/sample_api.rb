@@ -2,24 +2,33 @@ require_relative './user_entity'
 
 class SampleApi < Grape::API
   resource 'widgets' do
-    desc 'widgets list',
-         http_codes: [
-          [200, 'Widgets']
-         ]
+    desc 'List some Widgets' do
+      detail = <<-DOC.gsub(/^ {8}/,'')
+        Endpoint to find all Widgets that your account has access
+        to.  Just make a GET to
+
+        ```
+          widgets = Widget.all
+          widgets.map(&:owner) # => ['Spacely\'s Sprockets', ...]
+        ```
+      DOC
+      detail detail
+      success [[200, 'Widgets']]
+    end
     get  '/' do
     end
 
-    desc 'individual widget',
-         http_codes: [
-          [200, 'Widget']
-         ]
+    desc 'Show an Individual Widget' do
+      detail 'individual widget'
+      success [[200, 'Widget']]
+    end
     get ':id' do
     end
 
-    desc 'create a widget',
-         http_codes: [
-          [201, 'Widget']
-         ]
+    desc 'Create a Widget' do
+      detail 'create a widget'
+      success [[201, 'Widget']]
+    end
     params do
       requires :name,
                type: 'string',
@@ -33,49 +42,59 @@ class SampleApi < Grape::API
     post '/' do
     end
 
-    desc 'update a widget',
-         http_codes: [[204, nil]]
+    desc 'Update a Widget' do
+      detail 'update a widget'
+      success [[204, nil]]
+    end
     params do
-      optional :name, type: 'string', desc: 'the widgets name'
-      optional :description, type: 'string', desc: 'the widgets name'
+      optional :name,
+               type: 'string',
+               desc: 'the widgets name',
+               documentation: { example: 'Foo' }
+      optional :description,
+               type: 'string',
+               desc: 'the widgets description',
+               documentation: { example: 'Bar' }
     end
     put  ':id' do
     end
   end
 
   resource :users do
-    desc 'Display a list of users',
-         http_codes: [
-          [200, 'Users'],
-          [401, 'Unauthenticated'],
-          [403, 'Unauthorized']
-         ]
+    desc 'Display a list of users' do
+      success UserEntity
+    end
     params do
-      optional :page, desc: 'Page for pagination', type: Integer
-      optional :per_page, desc: 'Number of users per page', type: Integer
+      optional :page,
+               desc: 'Page for pagination',
+               type: Integer,
+               documentation: { example: 1 }
+      optional :per_page,
+               desc: 'Number of users per page',
+               type: Integer,
+               documentation: { example: 10 }
     end
     get '/' do
     end
 
-    desc "Display a user",
-         entity: UserEntity,
-         http_codes: [
-           [201, 'User'],
-           [401, 'Unauthenticated'],
-           [403, 'Unauthorized'],
-           [404, 'RecordNotFound']
-         ],
-         authorizations: { oauth2: [] },
-         docs: <<-DOC.gsub(/^ {15}/,'')
-               Users represent registered users for the application
-               They are required for authentication and authorization
+    desc "Display a User", authorizations: { oauth2: [] } do
+      success UserEntity
+      failure [
+                [401, 'Unauthenticated'],
+                [403, 'Unauthorized'],
+                [404, 'RecordNotFound']
+              ]
+      detail  <<-DOC.gsub(/^ {14}/,'')
+              Users represent registered users for the application
+              They are required for authentication and authorization
 
-               This endpoint displays an individual User.
-               DOC
+              This endpoint displays an individual User.
+              DOC
+    end
     get ':id' do
     end
 
-    desc "Update a user",
+    desc "Update a User",
          http_codes: [
            [204, 'NoContent'],
            [401, 'Unauthenticated'],

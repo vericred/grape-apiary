@@ -3,7 +3,7 @@ require 'spec_helper'
 describe GrapeApiary::Resource do
   include_context 'configuration'
 
-  subject(:resource) { GrapeApiary::Resource.new('foo', []) }
+  subject(:resource) { GrapeApiary::Resource.new('/foos/{id}', []) }
 
   context '#header' do
     subject { GrapeApiary::Blueprint.new(SampleApi).resources.first.header }
@@ -32,13 +32,41 @@ describe GrapeApiary::Resource do
     let(:blueprint) { GrapeApiary::Blueprint.new(SampleApi) }
 
     context 'when there is an entity' do
-      let(:resource)  { blueprint.resources.find { |r| r.key == 'users' } }
+      let(:resource)  { blueprint.resources.find { |r| r.name == 'Users' } }
       it { should be true }
     end
+  end
 
-    context 'when there is not an entity' do
-      let(:resource)  { blueprint.resources.find { |r| r.key == 'widgets' } }
-      it { should be false }
+  context '#header' do
+    subject { described_class.new(uri, api.routes).header}
+
+    context 'with several parameters' do
+      let(:uri) { '/users' }
+
+      let(:api) do
+        Class.new(Grape::API) do
+          resource :users do
+            params do
+              requires :foo
+              optional :bar
+              optional :baz
+            end
+            get '/' do
+            end
+
+            params do
+              requires :user, type: Hash do
+                requires :name, type: String
+                optional :qux, default: 'blah'
+              end
+            end
+            post '/' do
+            end
+          end
+        end
+      end
+
+      it { should eql 'Users [/users{?bar,baz,foo}]' }
     end
   end
 
@@ -56,6 +84,28 @@ describe GrapeApiary::Resource do
         expect(user).to have_key('id')
         expect(user['is_admin']).to eql false
       end
+    end
+
+  end
+
+  context '#title' do
+    subject { described_class.new(uri, []).title }
+
+    context 'with a singular route' do
+      let(:uri) { '/users/{id}' }
+
+      it 'is the singular of the root' do
+        expect(subject).to eql 'User'
+      end
+    end
+
+    context 'with a list route' do
+      let(:uri) { '/users' }
+
+      it 'is the plural of the root' do
+        expect(subject).to eql 'Users'
+      end
+
     end
 
   end

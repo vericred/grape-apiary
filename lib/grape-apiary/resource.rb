@@ -1,12 +1,18 @@
 module GrapeApiary
   class Resource
+    include TemplateRenderer
+
     attr_reader :uri, :name, :routes, :sample_generator
 
     def initialize(uri, routes)
       @uri = uri
-      @name = uri.humanize
+      @name = uri.split('/').reject(&:blank?).first.humanize
       @routes = normalize_routes(routes)
       @sample_generator = SampleGenerator.new(self)
+    end
+
+    def collection?
+      !singular?
     end
 
     def documentation
@@ -40,10 +46,11 @@ module GrapeApiary
     end
 
     def header
-      "#{title} [#{route_example_string}]"
+      "#{title} [#{uri_with_parameters}]"
     end
 
     def model_example
+      return nil if model.try(:documentation).blank?
       ret = {}
       model.documentation.each_pair do |key, opts|
         ret[key] = opts.fetch(:documentation, {}).fetch(:example, "")
@@ -53,6 +60,7 @@ module GrapeApiary
              model.instance_variable_get(:@root) :
              model.instance_variable_get(:@collection_root)
 
+      ret = [ret] unless singular?
       JSON.unparse({ root  => ret })
     end
 
@@ -70,24 +78,45 @@ module GrapeApiary
       methods = %w(POST PUT)
 
       potential = routes.select do |route|
-        methods.include?(route.route_method) && route.route_params.present?
+        methods.include?(route.route_method) && route.parameters.present?
       end
 
       if potential.present?
-        potential.first.route_params
+        potential.first.parameters
       else
         []
       end
     end
 
+    #
+    # Render our Route via a template
+    # @param route [GrapeApiary::Route]
+    #
+    # @return [String]
+    def render_route(route)
+      render(:route, route.route_binding)
+    end
+
+    #
+    # Make our binding more public
+    #
+    # @return [Binding]
     def resource_binding
       binding
+    end
+
+    #
+    # Is this a singular resource or a collection?
+    #
+    # @return [Boolean]
+    def singular?
+      !!(uri =~ /\{id\}/)
     end
 
     private
 
     def model
-      routes.map { |route| route.route_entity }.compact.first
+      routes.map(&:entity).compact.first
     end
 
     #
@@ -100,13 +129,29 @@ module GrapeApiary
       end
     end
 
-    def route_example_string
-      route = routes.first
-      route.route_path_without_format
+    #
+    # The route parameters for all GET requests
+    #
+    # @return [Array<String>]
+    def params_for_gets
+      routes
+        .select { |r| r.http_method == 'GET'}
+        .map { |r| r.parameters.map(&:full_name) }
+        .flatten
+        .compact
+        .sort
     end
 
-    def singular?
-      routes.first.route_type.to_sym == :single
+    #
+    # Returns a URI with all of the possible query params present
+    #
+    # @return [String]
+    def uri_with_parameters
+      ret = uri.clone
+      if collection? && params_for_gets.present?
+        ret += "{?#{params_for_gets.join(',')}}"
+      end
+      ret
     end
   end
 end

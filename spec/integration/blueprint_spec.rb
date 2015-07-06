@@ -66,13 +66,88 @@ describe GrapeApiary::Blueprint do
 
         ## Widgets [/widgets]
 
-        ## Widget [/widget/{id}]
+        ### List some Widgets  [GET]
+
+        Endpoint to find all Widgets that your account has access
+        to.  Just make a GET to
+
+        ```
+          widgets = Widget.all
+          widgets.map(&:owner) # => ['Spacely's Sprockets', ...]
+        ```
+
+        ### Create a Widget  [POST]
+
+        create a widget
+
+        ## Widget [/widgets/{id}]
+
+        ### Show an Individual Widget  [GET]
+
+        individual widget
+
+        + Parameters
+            + id (required, integer, `1`) ... the `id` of the `Widget`
+
+        ### Update a Widget  [PUT]
+
+        update a widget
+
+        + Parameters
+            + id (required, integer, `1`) ... the `id` of the `Widget`
 
         # Group Users
 
-        ## Users [/users]
+        ## Users [/users{?page,per_page}]
+
+        Properties
+
+        | Name | Type | Description |
+        |:-----|:-----|:------------|
+        | id |  Integer | Primary key of the user |
+        | is_admin |  Boolean | Is this user an admin? |
+
+        ### Display a list of users  [GET]
+
+        + Parameters
+            + page (optional, Integer, `1`) ... Page for pagination
+            + per_page (optional, Integer, `10`) ... Number of users per page
+
+        + Response
+
+                {"users":[{"id":1,"is_admin":false}]}
 
         ## User [/users/{id}]
+
+        Properties
+
+        | Name | Type | Description |
+        |:-----|:-----|:------------|
+        | id |  Integer | Primary key of the user |
+        | is_admin |  Boolean | Is this user an admin? |
+
+        ### Display a User  [GET]
+
+        Users represent registered users for the application
+        They are required for authentication and authorization
+
+        This endpoint displays an individual User.
+
+        + Parameters
+            + id (required, integer, `1`) ... the `id` of the `User`
+
+        + Response
+
+                {"user":{"id":1,"is_admin":false}}
+
+        ### Update a User  [PUT]
+
+        + Parameters
+            + id (required, integer, `1`) ... the `id` of the `User`
+
+        + Response
+
+                {"user":{"id":1,"is_admin":false}}
 
       DEF
       #   ## Widgets [/widgets]
@@ -113,7 +188,7 @@ describe GrapeApiary::Blueprint do
 
       #   + Parameters
 
-      #       + id (required, uuid, `26`) ... the `id` of the `widget`
+      #       + id (required, uuid, `26`) ... the `id` of the `Widget`
 
 
 
@@ -162,7 +237,7 @@ describe GrapeApiary::Blueprint do
 
       #   + Parameters
 
-      #       + id (required, uuid, `27`) ... the `id` of the `user`
+      #       + id (required, uuid, `27`) ... the `id` of the `User`
 
 
 

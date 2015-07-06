@@ -19,6 +19,15 @@ module GrapeApiary
       "#{name} (#{requirement}, #{type}, `#{example}`) ... #{desc}"
     end
 
+    def type
+      case @settings.type
+      when 'Virtus::Attribute::Boolean'
+        'boolean'
+      else
+        @settings.type
+      end
+    end
+
     private
 
     def parse_options(options)
@@ -30,15 +39,13 @@ module GrapeApiary
     end
 
     def default_options(options)
-      model = name.include?('_id') ? name.gsub('_id', '') : route.route_model
-
       {
         required:       true,
         requirement:    'required',
-        type:           'uuid',
-        desc:           "the `id` of the `#{model}`",
+        type:           'integer',
+        desc:           "the `id` of the `#{route.model_name}`",
         documentation:  {
-          example:      GrapeApiary::Config.generate_id
+          example:     1
         }
       }
     end

@@ -1,0 +1,19 @@
+### <%= description %>  [<%= http_method %>]
+
+<% if detail.present? -%>
+<%= detail.strip %>
+
+<% end -%>
+<% if visible_parameters.present? -%>
++ Parameters
+  <% visible_parameters.each do |param| -%>
+  + <%= param.description %>
+  <% end -%>
+
+<% end -%>
+<% if resource.model_example -%>
++ Response
+
+        <%= resource.model_example %>
+
+<% end -%>

@@ -11,52 +11,42 @@ describe GrapeApiary::Route do
     expect(subject.route_name).to eq('widgets')
   end
 
-  it 'adds a path helper without format' do
-    expect(subject.route_path_without_format).to eq('/widgets')
-  end
-
-  it 'adds a type helper' do
-    expect(subject.route_type).to eq('collection')
-  end
-
-  context '#route_name' do
+  context '#visible_parameters' do
     let(:api) do
       Class.new(Grape::API) do
         resource :users do
-          get '/' do
+          params do
+            requires :foo
+            optional :bar
+          end
+          get ':id' do
           end
 
-          post '/' do
+          params do
+            requires :baz
+            optional :qux
           end
-
-          get '/:id' do
-          end
-
-          put '/:id' do
+          post ':id' do
           end
         end
       end
     end
 
-    xit 'groups the route by namespace' do
-      expect(described_class.route_name(api.routes.first)).to eql('users')
-      expect(described_class.route_name(api.routes.second)).to eql('users')
-      expect(described_class.route_name(api.routes.third)).to eql(
-        '/users/{id}'
-      )
-      expect(described_class.route_name(api.routes.fourth)).to eql(
-        '/users/{id}'
-      )
+    context 'on a GET' do
+      subject { described_class.new(nil, api.routes.first).visible_parameters }
+
+      it 'shows all parameters' do
+        expect(subject.length).to eql 3
+      end
     end
-  end
 
+    context 'on a POSt' do
+      subject { described_class.new(nil, api.routes.last).visible_parameters }
 
-  context '#response_descriptions' do
-    subject { route.response_descriptions.first }
-
-    it 'defaults to 200 and the name of the resource' do
-      expect(subject.entity_name).to eql 'Widgets'
-      expect(subject.http_code).to eql 200
+      it 'shows only ID' do
+        expect(subject.length).to eql 1
+        expect(subject.first.full_name).to eql 'id'
+      end
     end
   end
 end

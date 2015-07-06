@@ -23,21 +23,16 @@ module GrapeApiary
       render(:blueprint, binding)
     end
 
-    def write
-      fail 'Not yet supported'
+    def resources
+      groups.map(&:resources).flatten
     end
 
     def routes
       resources.map(&:routes).flatten
     end
 
-    def resources
-      @resources ||= begin
-        api_class.routes
-          .group_by { |route| GrapeApiary::Route.route_name(route) }
-          .reject { |name, routes| resource_exclusion.include?(name.to_sym) }
-          .map { |name, routes| Resource.new(name, routes) }
-      end
+    def write
+      fail 'Not yet supported'
     end
 
     def render_group(group)

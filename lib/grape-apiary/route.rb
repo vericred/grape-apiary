@@ -19,30 +19,44 @@ module GrapeApiary
     # This is used to group routes into resources
     #
     def self.route_name(route)
-      begin
-        route.route_namespace.split('/').last ||
-          route.route_path.match('\/(\w*)?([\.\/\(]|$)').captures.first
-      rescue => e
-        binding.pry
-        ""
-      end
+      route.route_namespace.split('/').last ||
+        route.route_path.match('\/(\w*)?([\.\/\(]|$)').captures.first
     end
 
     def initialize(resource, route)
       @resource, @route = resource, route
     end
 
-    def resource_title
-      resource.title
+    def description
+      route.route_description
     end
 
-    def response_descriptions
-      (route_http_codes.presence || [[200, resource.title]])
-        .map { |code| ResponseDescription.new(self, *code)}
+    def detail
+      route.route_detail
     end
 
-    def route_params
-      @route_params ||=
+    def entity
+      route.route_entity || route.route_success
+    end
+
+    def get?
+      http_method == 'GET'
+    end
+
+    def http_method
+      route.route_method.upcase
+    end
+
+    def list?
+      !resource.singular?
+    end
+
+    def model_name
+      resource.try(:title)
+    end
+
+    def parameters
+      @parameters ||=
         route.route_params
           .sort_by { |k,v| k.to_sym }
           .map { |param| Parameter.new(self, *param) }
@@ -52,34 +66,20 @@ module GrapeApiary
       self.class.route_name(self.route)
     end
 
-    def route_description
-      "#{route.route_description} [#{route_method.upcase}]"
+    def route_binding
+      binding
     end
 
-    def route_path_without_format
-      route_path.gsub(/\((.*?)\)/, '')
-    end
-
-    def route_model
-      route_namespace.split('/').last.singularize
-    end
-
-    def route_type
-      list? ? 'collection' : 'single'
-    end
-
-    def request_description
-      "+ Request #{'(application/json)' if request_body?}"
-    end
-
-    def list?
-      %w(GET POST).include?(route_method) && !route_path.include?(':id')
+    def visible_parameters
+      parameters.select do |param|
+        get? || /:#{param.full_name}/ =~ route.route_path
+      end
     end
 
     private
 
     def request_body?
-      !%w(GET DELETE).include?(route_method)
+      !%w(GET DELETE).include?(http_method)
     end
   end
 end

@@ -1,1 +1,15 @@
-## <%= name %> [<%= uri %>]
+## <%= header %>
+
+<% if documentation.present? -%>
+Properties
+
+| Name | Type | Description |
+|:-----|:-----|:------------|
+<% documentation.each_pair do |key, opts| -%>
+| <%= key %> |  <%= opts[:type].to_s.demodulize %> | <%= opts[:desc] %> |
+<% end -%>
+
+<% end -%>
+<% routes.each do |route| -%>
+<%= render_route(route) -%>
+<% end -%>
