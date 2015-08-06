@@ -11,9 +11,12 @@
   <% end -%>
 
 <% end -%>
-<% if resource.model_example -%>
-+ Response
+<% if has_request_body? -%>
++ Request (<%= GrapeApiary::Config.default_format %>)
 
-        <%= resource.model_example %>
+        <%= request_body_example %>
 
+<% end -%>
+<% response_descriptions.each do |response_description| -%>
+<%= render_response_description(response_description) %>
 <% end -%>

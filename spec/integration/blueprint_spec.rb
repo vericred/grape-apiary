@@ -76,9 +76,17 @@ describe GrapeApiary::Blueprint do
           widgets.map(&:owner) # => ['Spacely's Sprockets', ...]
         ```
 
+        + Response 200
+
         ### Create a Widget  [POST]
 
         create a widget
+
+        + Request (application/json)
+
+                {"name":"super widget","description":"the best widget ever made"}
+
+        + Response 201
 
         ## Widget [/widgets/{id}]
 
@@ -89,6 +97,8 @@ describe GrapeApiary::Blueprint do
         + Parameters
             + id (required, integer, `1`) ... the `id` of the `Widget`
 
+        + Response 200
+
         ### Update a Widget  [PUT]
 
         update a widget
@@ -96,11 +106,15 @@ describe GrapeApiary::Blueprint do
         + Parameters
             + id (required, integer, `1`) ... the `id` of the `Widget`
 
+        + Request (application/json)
+
+                {"name":"Foo","description":"Bar"}
+
+        + Response 204
+
         # Group Users
 
         ## Users [/users{?page,per_page}]
-
-        Properties
 
         | Name | Type | Description |
         |:-----|:-----|:------------|
@@ -113,13 +127,11 @@ describe GrapeApiary::Blueprint do
             + page (optional, Integer, `1`) ... Page for pagination
             + per_page (optional, Integer, `10`) ... Number of users per page
 
-        + Response
+        + Response 200
 
                 {"users":[{"id":1,"is_admin":false}]}
 
         ## User [/users/{id}]
-
-        Properties
 
         | Name | Type | Description |
         |:-----|:-----|:------------|
@@ -136,164 +148,37 @@ describe GrapeApiary::Blueprint do
         + Parameters
             + id (required, integer, `1`) ... the `id` of the `User`
 
-        + Response
+        + Response 200
 
                 {"user":{"id":1,"is_admin":false}}
+
+        + Response 401
+
+        + Response 403
+
+        + Response 404
 
         ### Update a User  [PUT]
 
         + Parameters
             + id (required, integer, `1`) ... the `id` of the `User`
 
-        + Response
+        + Request (application/json)
 
-                {"user":{"id":1,"is_admin":false}}
+                {"user":{"is_admin":false}}
+
+        + Response 204
+
+        + Response 401
+
+        + Response 403
+
+        + Response 404
+
+        + Response 422
 
       DEF
-      #   ## Widgets [/widgets]
 
-      #   Actions on the Widgets resource
-
-
-
-
-      #   ### widgets list [GET]
-
-      #   + Response 200 (application/json)
-      #       [Widgets][]
-
-
-      #   ### create a widget [POST]
-
-      #   + Request (application/json)
-      #       + Headers
-
-      #               Accept-Charset: utf-8
-      #               Connection: keep-alive
-      #       + Body
-
-      #                 {
-      #                   "description": "the best widget ever made",
-      #                   "name": "super widget"
-      #                 }
-
-      #   + Response 201 (application/json)
-      #       [Widget][]
-
-
-
-      #   ## Widget [/widgets/:id]
-
-      #   Actions on the Widgets resource
-
-      #   + Parameters
-
-      #       + id (required, uuid, `26`) ... the `id` of the `Widget`
-
-
-
-
-
-      #   ### individual widget [GET]
-
-      #   + Response 200 (application/json)
-      #       [Widget][]
-
-
-      #   ### update a widget [PUT]
-
-      #   + Request (application/json)
-      #       + Headers
-
-      #               Accept-Charset: utf-8
-      #               Connection: keep-alive
-      #       + Body
-
-      #                 {
-      #                   "description": "the best widget ever made",
-      #                   "name": "super widget"
-      #                 }
-
-      #   + Response 204
-
-
-
-
-
-      #   # Group User
-      #   Properties
-
-      #   | Name | Type | Description |
-      #   |:-----|:-----|:------------|
-      #   | id |  Integer | Primary key of the user |
-      #   | is_admin |  Boolean | Is this user an admin? |
-
-
-
-
-      #   ## User [/users/:id]
-
-      #   Actions on the Users resource
-
-      #   + Parameters
-
-      #       + id (required, uuid, `27`) ... the `id` of the `User`
-
-
-
-      #   + Model (application/json)
-      #       + Body
-
-      #           {"user":{"id":1,"is_admin":false}}
-
-
-
-      #   ### Display a user [GET]
-      #   Users represent registered users for the application
-      #   They are required for authentication and authorization
-
-      #   This endpoint displays an individual User.
-
-
-      #   + Response 201 (application/json)
-      #       [User][]
-
-      #   + Response 401
-
-      #   + Response 403
-
-      #   + Response 404
-
-
-      #   ### Update a user [PUT]
-
-      #   + Request (application/json)
-      #       + Headers
-
-      #               Accept-Charset: utf-8
-      #               Connection: keep-alive
-      #       + Body
-
-      #                 {
-      #                   "id": 28,
-      #                   "is_admin": false
-      #                 }
-
-      #   + Response 204
-
-      #   + Response 401
-
-      #   + Response 403
-
-      #   + Response 404
-
-      #   + Response 422
-
-
-
-
-
-      # DEF
       expect(normalized).to eql(expected)
     end
   end

@@ -4,7 +4,7 @@ module GrapeApiary
 
     delegate :route_model, :route_namespace, to: :route
     delegate :requirement, :type, :documentation, :desc, to: :settings
-    delegate :example, to: :documentation, allow_nil: true
+    delegate :example, :hidden, to: :documentation, allow_nil: true
 
     def initialize(route, name, options)
       name = name.to_s
@@ -26,6 +26,10 @@ module GrapeApiary
       else
         @settings.type
       end
+    end
+
+    def visible?
+      !hidden
     end
 
     private

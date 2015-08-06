@@ -13,21 +13,21 @@ class SampleApi < Grape::API
         ```
       DOC
       detail detail
-      success [[200, 'Widgets']]
+      success [200, 'Widgets']
     end
     get  '/' do
     end
 
     desc 'Show an Individual Widget' do
       detail 'individual widget'
-      success [[200, 'Widget']]
+      success [200, 'Widget']
     end
     get ':id' do
     end
 
     desc 'Create a Widget' do
       detail 'create a widget'
-      success [[201, 'Widget']]
+      success [201, 'Widget']
     end
     params do
       requires :name,
@@ -44,7 +44,7 @@ class SampleApi < Grape::API
 
     desc 'Update a Widget' do
       detail 'update a widget'
-      success [[204, nil]]
+      success [204, nil]
     end
     params do
       optional :name,
@@ -73,6 +73,10 @@ class SampleApi < Grape::API
                desc: 'Number of users per page',
                type: Integer,
                documentation: { example: 10 }
+      optional :foo,
+               desc: 'This should be hidden',
+               type: 'String',
+               documentation: { hidden: true }
     end
     get '/' do
     end
@@ -94,14 +98,15 @@ class SampleApi < Grape::API
     get ':id' do
     end
 
-    desc "Update a User",
-         http_codes: [
-           [204, 'NoContent'],
-           [401, 'Unauthenticated'],
-           [403, 'Unauthorized'],
-           [404, 'RecordNotFound'],
-           [422, 'RecordInvalid']
-         ]
+    desc "Update a User" do
+      success [204, 'NoContent']
+      failure [
+       [401, 'Unauthenticated'],
+       [403, 'Unauthorized'],
+       [404, 'RecordNotFound'],
+       [422, 'RecordInvalid']
+      ]
+    end
     params do
       requires :user, type: Hash do
         requires :all, using: UserEntity.documentation.except(:id)

@@ -8,11 +8,16 @@ module GrapeApiary
       :response_headers,
       :example_id_type,
       :resource_exclusion,
-      :include_root
+      :include_root,
+      :default_format
     ]
 
     class << self
       attr_accessor(*SETTINGS)
+
+      def default_format
+        @default_format ||= 'application/json'
+      end
 
       def request_headers
         @request_headers ||= []

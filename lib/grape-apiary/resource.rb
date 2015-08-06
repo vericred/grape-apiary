@@ -49,21 +49,6 @@ module GrapeApiary
       "#{title} [#{uri_with_parameters}]"
     end
 
-    def model_example
-      return nil if model.try(:documentation).blank?
-      ret = {}
-      model.documentation.each_pair do |key, opts|
-        ret[key] = opts.fetch(:documentation, {}).fetch(:example, "")
-      end
-
-      root = singular? ?
-             model.instance_variable_get(:@root) :
-             model.instance_variable_get(:@collection_root)
-
-      ret = [ret] unless singular?
-      JSON.unparse({ root  => ret })
-    end
-
     def sample_request
       sample_generator.request
     end
@@ -136,7 +121,7 @@ module GrapeApiary
     def params_for_gets
       routes
         .select { |r| r.http_method == 'GET'}
-        .map { |r| r.parameters.map(&:full_name) }
+        .map { |r| r.parameters.select(&:visible?).map(&:full_name) }
         .flatten
         .compact
         .sort

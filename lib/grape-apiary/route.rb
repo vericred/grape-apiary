@@ -1,5 +1,7 @@
 module GrapeApiary
   class Route
+    include TemplateRenderer
+
     # would like to rely on SimpleDelegator but Grape::Route uses
     # method_missing for these methods :'(
     delegate(
@@ -43,6 +45,10 @@ module GrapeApiary
       http_method == 'GET'
     end
 
+    def has_request_body?
+      %w(POST PUT).include?(http_method)
+    end
+
     def http_method
       route.route_method.upcase
     end
@@ -62,6 +68,28 @@ module GrapeApiary
           .map { |param| Parameter.new(self, *param) }
     end
 
+    def post?
+      http_method == 'POST'
+    end
+
+    def render_response_description(response_description)
+      render(
+        :response_description,
+        response_description.response_description_binding
+      )
+    end
+
+    def request_body_example
+      GrapeApiary::Body.new(request_root, request_body_params)
+    end
+
+    def response_descriptions
+      responses = [route.route_entity] + (route.route_http_codes || []).compact
+      responses.map do |response|
+        GrapeApiary::ResponseDescription.new(response, self)
+      end
+    end
+
     def route_name
       self.class.route_name(self.route)
     end
@@ -72,14 +100,32 @@ module GrapeApiary
 
     def visible_parameters
       parameters.select do |param|
-        get? || /:#{param.full_name}/ =~ route.route_path
+        param.visible? && (get? || /:#{param.full_name}/ =~ route.route_path)
       end
     end
 
     private
 
-    def request_body?
-      !%w(GET DELETE).include?(http_method)
+    def raw_request_body_params
+      route.route_settings[:description][:params]
+    end
+
+    def request_root
+      raw_request_body_params
+        .select { |k,v| v[:type] == 'Hash'}
+        .keys
+        .first
+    end
+
+    def request_body_params
+      return raw_request_body_params if request_root.blank?
+      {}.tap do |ret|
+        raw_request_body_params.each_pair do |key, param|
+          next if param[:type] == 'Hash'
+          # convert from foo[bar] to just bar
+          ret[key.scan(/\[(.*)\]/).first.try(:first)] = param
+        end
+      end
     end
   end
 end

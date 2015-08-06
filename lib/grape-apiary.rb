@@ -2,6 +2,7 @@ require 'grape'
 
 module GrapeApiary
   autoload :Blueprint,            'grape-apiary/blueprint'
+  autoload :Body,            'grape-apiary/body'
   autoload :Config,               'grape-apiary/config'
   autoload :Group,                'grape-apiary/group'
   autoload :Parameter,            'grape-apiary/parameter'
