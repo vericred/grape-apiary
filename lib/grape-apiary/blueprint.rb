@@ -13,6 +13,7 @@ module GrapeApiary
     def groups
       @groups ||= begin
         api_class.routes
+          .reject(&:route_hidden)
           .group_by { |route| GrapeApiary::Group.fetch_name(route) }
           .reject { |name, routes| resource_exclusion.include?(name.to_sym) }
           .map { |name, routes| GrapeApiary::Group.new(name, routes) }

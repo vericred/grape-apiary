@@ -114,7 +114,7 @@ describe GrapeApiary::Blueprint do
 
         # Group Users
 
-        ## Users [/users{?page,per_page}]
+        ## Users [/users{?bars%5B%5D%5Bbaz%5D,bars%5B%5D%5Bqux%5D,page,per_page}]
 
         | Name | Type | Description |
         |:-----|:-----|:------------|
@@ -124,6 +124,8 @@ describe GrapeApiary::Blueprint do
         ### Display a list of users  [GET]
 
         + Parameters
+            + bars%5B%5D%5Bbaz%5D (optional, Integer, `50`) ... Baz Description
+            + bars%5B%5D%5Bqux%5D (optional, Boolean, `false`) ... Qux Description
             + page (optional, Integer, `1`) ... Page for pagination
             + per_page (optional, Integer, `10`) ... Number of users per page
 

@@ -58,6 +58,10 @@ class SampleApi < Grape::API
     end
     put  ':id' do
     end
+
+    desc 'Delete a Widget', hidden: true
+    delete ':id' do
+    end
   end
 
   resource :users do
@@ -77,6 +81,16 @@ class SampleApi < Grape::API
                desc: 'This should be hidden',
                type: 'String',
                documentation: { hidden: true }
+      optional :bars, type: Array do
+        requires :baz,
+                 type: Integer,
+                 documentation: { example: 50 },
+                 desc: 'Baz Description'
+        requires :qux,
+                 type: Virtus::Attribute::Boolean,
+                 documentation: { example: false },
+                 desc: 'Qux Description'
+      end
     end
     get '/' do
     end

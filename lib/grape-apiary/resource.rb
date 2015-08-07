@@ -119,11 +119,12 @@ module GrapeApiary
     #
     # @return [Array<String>]
     def params_for_gets
-      routes
+      param_set = routes
         .select { |r| r.http_method == 'GET'}
         .map { |r| r.parameters.select(&:visible?).map(&:full_name) }
         .flatten
         .compact
+        .map { |p| CGI.escape(p) }
         .sort
     end
 
