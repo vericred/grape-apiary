@@ -1,3 +1,4 @@
+require_relative './state_entity'
 require_relative './user_entity'
 
 class SampleApi < Grape::API
@@ -96,7 +97,7 @@ class SampleApi < Grape::API
     end
 
     desc "Display a User", authorizations: { oauth2: [] } do
-      success UserEntity
+      success [200, [UserEntity, StateEntity]]
       failure [
                 [401, 'Unauthenticated'],
                 [403, 'Unauthorized'],
