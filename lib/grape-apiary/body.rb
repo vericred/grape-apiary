@@ -7,7 +7,8 @@ module GrapeApiary
     def to_s
       ret = {}
       @definition.each_pair do |key, opts|
-        ret[key] = opts.fetch(:documentation, {}).fetch(:example, "")
+        ret[key] = opts[:example] ||
+                   opts.fetch(:documentation, {}).fetch(:example, "")
       end
       ret = [ret] unless @singular
       ret = { @root => ret } if @root.present?
